@@ -11,6 +11,7 @@ import SwiftUI
 struct LiveTVApp: App {
     var body: some Scene {
         WindowGroup {
+            // here is the starting...
             ContentView()
         }
     }
