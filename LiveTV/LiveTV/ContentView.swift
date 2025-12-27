@@ -67,7 +67,7 @@ struct ContentView: View {
                         .padding(.horizontal)
                 }
 
-                List(viewModel.channels) { channel in
+                List(viewModel.filteredChannels) { channel in
                     Button {
                         selectedChannel = channel
                     } label: {
@@ -77,7 +77,8 @@ struct ContentView: View {
                 .listStyle(.plain)
             }
             .navigationTitle("LiveTV")
-            .onChange(of: selectedChannel) { newValue in
+            .searchable(text: $viewModel.searchQuery, prompt: "Search channels")
+            .onChangeCompat(of: selectedChannel) { newValue in
                 guard let newValue = newValue else {
                     player.pause()
                     return
@@ -127,5 +128,23 @@ private struct ChannelRow: View {
                 .foregroundStyle(isSelected ? .blue : .secondary)
         }
         .padding(.vertical, 4)
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func onChangeCompat<Value: Equatable>(
+        of value: Value,
+        perform action: @escaping (Value) -> Void
+    ) -> some View {
+        if #available(iOS 17.0, *) {
+            self.onChange(of: value) { _, newValue in
+                action(newValue)
+            }
+        } else {
+            self.onChange(of: value) { newValue in
+                action(newValue)
+            }
+        }
     }
 }
