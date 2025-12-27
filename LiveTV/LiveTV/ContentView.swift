@@ -12,6 +12,7 @@ struct ContentView: View {
     @StateObject private var viewModel = PlaylistViewModel()
     @State private var selectedChannel: Channel?
     @State private var player = AVPlayer()
+    @State private var isFullScreen = false
 
     var body: some View {
         NavigationView {
@@ -27,6 +28,19 @@ struct ContentView: View {
                                     .foregroundStyle(.white)
                                     .shadow(radius: 3)
                                     .padding(10)
+                            }
+                            .overlay(alignment: .topTrailing) {
+                                Button {
+                                    isFullScreen = true
+                                } label: {
+                                    Image(systemName: "arrow.up.left.and.arrow.down.right")
+                                        .foregroundStyle(.white)
+                                        .padding(8)
+                                        .background(.black.opacity(0.5))
+                                        .clipShape(Circle())
+                                }
+                                .padding(10)
+                                .accessibilityLabel("Full screen")
                             }
                             .onAppear {
                                 player.play()
@@ -90,6 +104,9 @@ struct ContentView: View {
             .task {
                 await viewModel.load()
             }
+            .fullScreenCover(isPresented: $isFullScreen) {
+                FullScreenPlayerView(player: player, channel: selectedChannel)
+            }
         }
     }
 }
@@ -128,6 +145,43 @@ private struct ChannelRow: View {
                 .foregroundStyle(isSelected ? .blue : .secondary)
         }
         .padding(.vertical, 4)
+    }
+}
+
+private struct FullScreenPlayerView: View {
+    let player: AVPlayer
+    let channel: Channel?
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        ZStack(alignment: .topTrailing) {
+            VideoPlayer(player: player)
+                .ignoresSafeArea()
+                .onAppear {
+                    player.play()
+                }
+
+            HStack {
+                if let channel {
+                    Text(channel.name)
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .padding(.leading, 16)
+                }
+                Spacer()
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.title2)
+                        .foregroundStyle(.white)
+                        .padding(12)
+                }
+                .accessibilityLabel("Close")
+            }
+            .padding(.top, 12)
+            .background(.black.opacity(0.35))
+        }
     }
 }
 
