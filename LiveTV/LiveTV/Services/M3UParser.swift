@@ -1,47 +1,4 @@
 import Foundation
-import SwiftUI
-import Combine
-
-struct Channel: Identifiable, Equatable {
-    let id = UUID()
-    let name: String
-    let url: URL
-    let logoURL: URL?
-    let group: String?
-}
-
-@MainActor
-final class PlaylistViewModel: ObservableObject {
-    @Published var channels: [Channel] = []
-    @Published var isLoading = false
-    @Published var errorMessage: String?
-
-    private let playlistURL = URL(string: "https://iptv-org.github.io/iptv/index.m3u")!
-
-    func load() async {
-        if isLoading {
-            return
-        }
-
-        isLoading = true
-        errorMessage = nil
-
-        do {
-            let (data, _) = try await URLSession.shared.data(from: playlistURL)
-            guard let text = String(data: data, encoding: .utf8) else {
-                throw URLError(.cannotDecodeContentData)
-            }
-            channels = M3UParser.parse(text)
-            if channels.isEmpty {
-                errorMessage = "No channels found in playlist."
-            }
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-
-        isLoading = false
-    }
-}
 
 enum M3UParser {
     static func parse(_ text: String) -> [Channel] {
