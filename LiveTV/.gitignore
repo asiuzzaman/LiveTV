@@ -3,6 +3,8 @@ xcuserdata/
 *.xcuserstate
 *.xcscmblueprint
 *.xccheckout
+LiveTV.xcodeproj/project.xcworkspace/xcuserdata/md.asiuzzaman.xcuserdatad/
+UserInterfaceState.xcuserstate
 
 ## Build products
 build/
